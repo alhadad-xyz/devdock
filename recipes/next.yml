@@ -1,0 +1,8 @@
+app:
+  command: "npm run dev"
+  port: 3000
+services:
+  postgres:
+    enabled: true
+  redis:
+    enabled: false
