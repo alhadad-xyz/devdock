@@ -1,4 +1,6 @@
-# DevDock
+# DevDock ![Version](https://img.shields.io/badge/version-v0.1%20beta-blue)
+
+![DevDock Terminal Demo](assets/demo.gif)
 
 DevDock is a local development launcher that detects your project, generates a lightweight environment config, and starts your app together with Dockerized services like MySQL, PostgreSQL, and Redis.
 
@@ -26,7 +28,7 @@ Currently, DevDock can be installed from source via Go:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/devdock.git
+git clone https://github.com/amc/devdock.git
 cd devdock
 
 # Install the binary
