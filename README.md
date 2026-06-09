@@ -28,7 +28,7 @@ Currently, DevDock can be installed from source via Go:
 
 ```bash
 # Clone the repository
-git clone https://github.com/amc/devdock.git
+git clone https://github.com/alhadad-xyz/devdock.git
 cd devdock
 
 # Install the binary
