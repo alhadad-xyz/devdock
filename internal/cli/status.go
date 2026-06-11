@@ -109,6 +109,12 @@ var statusCmd = &cobra.Command{
 			}
 			fmt.Printf("Redis: redis://127.0.0.1:%d\n", cfg.Services.Redis.Port)
 		}
+		if cfg.Services.Mailpit != nil && cfg.Services.Mailpit.Enabled {
+			fmt.Printf("Mailpit Web UI: http://127.0.0.1:%d\n", cfg.Services.Mailpit.UIPort)
+		}
+		if cfg.Services.MinIO != nil && cfg.Services.MinIO.Enabled {
+			fmt.Printf("MinIO Console: http://127.0.0.1:%d\n", cfg.Services.MinIO.ConsolePort)
+		}
 	},
 }
 

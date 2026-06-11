@@ -49,3 +49,10 @@ func CheckPHP() error {
 	}
 	return nil
 }
+
+func CheckGo() error {
+	if _, err := exec.LookPath("go"); err != nil {
+		return fmt.Errorf("go is not installed")
+	}
+	return nil
+}

@@ -6,3 +6,13 @@ services:
     enabled: true
   redis:
     enabled: false
+  mailpit:
+    enabled: false
+  minio:
+    enabled: false
+commands:
+  install: composer install && npm install
+  dev: php artisan serve --host=127.0.0.1 --port=8000
+  migrate: php artisan migrate
+  seed: php artisan db:seed
+  test: php artisan test

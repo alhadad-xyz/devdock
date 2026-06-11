@@ -1,0 +1,16 @@
+version: "1"
+project:
+  name: "laravel-v01"
+  type: "laravel"
+app:
+  command: "php artisan serve"
+  port: 8000
+services:
+  postgres:
+    enabled: true
+    version: "15"
+    port: 5432
+  redis:
+    enabled: true
+    version: "7"
+    port: 6379

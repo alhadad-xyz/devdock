@@ -8,6 +8,7 @@ import (
 
 type Service struct {
 	Image       string            `yaml:"image"`
+	Command     string            `yaml:"command,omitempty"`
 	Ports       []string          `yaml:"ports,omitempty"`
 	Environment map[string]string `yaml:"environment,omitempty"`
 	Volumes     []string          `yaml:"volumes,omitempty"`
@@ -81,6 +82,48 @@ func BuildRedis(projName string, cfg config.RedisConfig) Service {
 		Networks: []string{"devdock_network"},
 		Healthcheck: &Healthcheck{
 			Test: []string{"CMD", "redis-cli", "ping"},
+			Interval: "5s",
+			Timeout: "5s",
+			Retries: 5,
+		},
+	}
+}
+
+func BuildMailpit(projName string, cfg config.MailpitConfig) Service {
+	return Service{
+		Image: fmt.Sprintf("axllent/mailpit:%s", cfg.Version),
+		Ports: []string{
+			fmt.Sprintf("%d:1025", cfg.SMTPPort),
+			fmt.Sprintf("%d:8025", cfg.UIPort),
+		},
+		Networks: []string{"devdock_network"},
+		Healthcheck: &Healthcheck{
+			Test: []string{"CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8025/api/v1/info"},
+			Interval: "5s",
+			Timeout: "5s",
+			Retries: 5,
+		},
+	}
+}
+
+func BuildMinIO(projName string, cfg config.MinIOConfig) Service {
+	return Service{
+		Image: fmt.Sprintf("minio/minio:%s", cfg.Version),
+		Command: "server /data --console-address \":9001\"",
+		Ports: []string{
+			fmt.Sprintf("%d:9000", cfg.APIPort),
+			fmt.Sprintf("%d:9001", cfg.ConsolePort),
+		},
+		Environment: map[string]string{
+			"MINIO_ROOT_USER":     "devdock",
+			"MINIO_ROOT_PASSWORD": "password",
+		},
+		Volumes: []string{
+			fmt.Sprintf("devdock_%s_minio_data:/data", utils.NormalizeProjectName(projName)),
+		},
+		Networks: []string{"devdock_network"},
+		Healthcheck: &Healthcheck{
+			Test: []string{"CMD", "curl", "-f", "http://localhost:9000/minio/health/live"},
 			Interval: "5s",
 			Timeout: "5s",
 			Retries: 5,

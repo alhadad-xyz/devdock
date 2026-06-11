@@ -62,6 +62,15 @@ func Generate(projectDir string, cfg *config.Config) error {
 		comp.Volumes[fmt.Sprintf("devdock_%s_redis_data", projName)] = nil
 	}
 
+	if cfg.Services.Mailpit != nil && cfg.Services.Mailpit.Enabled {
+		comp.Services["mailpit"] = services.BuildMailpit(projName, *cfg.Services.Mailpit)
+	}
+
+	if cfg.Services.MinIO != nil && cfg.Services.MinIO.Enabled {
+		comp.Services["minio"] = services.BuildMinIO(projName, *cfg.Services.MinIO)
+		comp.Volumes[fmt.Sprintf("devdock_%s_minio_data", projName)] = nil
+	}
+
 	var buf bytes.Buffer
 	buf.WriteString(Header)
 	enc := yaml.NewEncoder(&buf)

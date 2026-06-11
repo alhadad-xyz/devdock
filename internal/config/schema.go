@@ -28,6 +28,8 @@ type ServicesConfig struct {
 	Postgres *PostgresConfig `yaml:"postgres,omitempty"`
 	MySQL    *MySQLConfig    `yaml:"mysql,omitempty"`
 	Redis    *RedisConfig    `yaml:"redis,omitempty"`
+	Mailpit  *MailpitConfig  `yaml:"mailpit,omitempty"`
+	MinIO    *MinIOConfig    `yaml:"minio,omitempty"`
 }
 
 type PostgresConfig struct {
@@ -46,6 +48,20 @@ type RedisConfig struct {
 	Enabled bool   `yaml:"enabled"`
 	Port    int    `yaml:"port,omitempty"`
 	Version string `yaml:"version,omitempty"`
+}
+
+type MailpitConfig struct {
+	Enabled  bool   `yaml:"enabled"`
+	Version  string `yaml:"version,omitempty"`
+	SMTPPort int    `yaml:"smtp_port,omitempty"`
+	UIPort   int    `yaml:"ui_port,omitempty"`
+}
+
+type MinIOConfig struct {
+	Enabled     bool   `yaml:"enabled"`
+	Version     string `yaml:"version,omitempty"`
+	APIPort     int    `yaml:"api_port,omitempty"`
+	ConsolePort int    `yaml:"console_port,omitempty"`
 }
 
 type CommandsConfig map[string]string

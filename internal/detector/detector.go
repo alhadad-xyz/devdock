@@ -1,8 +1,10 @@
 package detector
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Confidence represents the certainty of detection.
@@ -91,10 +93,57 @@ func Detect(projectDir string) *Result {
 
 	// Next.js (Low)
 	if hasPackageJson {
+		data, err := os.ReadFile(filepath.Join(projectDir, "package.json"))
+		if err == nil {
+			var pkg map[string]interface{}
+			if err := json.Unmarshal(data, &pkg); err == nil {
+				deps, _ := pkg["dependencies"].(map[string]interface{})
+				if deps != nil {
+					if _, ok := deps["next"]; ok {
+						return &Result{Type: "nextjs", Confidence: High, Reasons: []string{"Found next in dependencies"}}
+					}
+					if _, ok := deps["express"]; ok {
+						return &Result{Type: "express", Confidence: High, Reasons: []string{"Found express in dependencies"}}
+					}
+				}
+
+				devDeps, _ := pkg["devDependencies"].(map[string]interface{})
+				if devDeps != nil {
+					if _, ok := devDeps["next"]; ok {
+						return &Result{Type: "nextjs", Confidence: High, Reasons: []string{"Found next in devDependencies"}}
+					}
+					if _, ok := devDeps["express"]; ok {
+						return &Result{Type: "express", Confidence: High, Reasons: []string{"Found express in devDependencies"}}
+					}
+				}
+			}
+		}
+
 		return &Result{
-			Type:       "nextjs",
+			Type:       "express",
 			Confidence: Low,
-			Reasons:    []string{"Found package.json"},
+			Reasons:    []string{"Found package.json, but neither next nor express listed"},
+		}
+	}
+
+	hasGoMod := fileExists(projectDir, "go.mod")
+	if hasGoMod {
+		b, err := os.ReadFile(filepath.Join(projectDir, "go.mod"))
+		if err == nil {
+			content := string(b)
+			if strings.Contains(content, "github.com/gofiber/fiber") {
+				return &Result{
+					Type:       "fiber",
+					Confidence: High,
+					Reasons:    []string{"Found github.com/gofiber/fiber in go.mod"},
+				}
+			}
+		}
+		
+		return &Result{
+			Type:       "fiber",
+			Confidence: Low,
+			Reasons:    []string{"Found go.mod, but gofiber not listed"},
 		}
 	}
 

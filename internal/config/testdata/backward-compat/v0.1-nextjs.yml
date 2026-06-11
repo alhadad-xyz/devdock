@@ -1,0 +1,12 @@
+version: "1"
+project:
+  name: "nextjs-v01"
+  type: "nextjs"
+app:
+  command: "npm run dev"
+  port: 3000
+services:
+  mysql:
+    enabled: true
+    version: "8.0"
+    port: 3306

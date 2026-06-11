@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -47,6 +48,8 @@ var initCmd = &cobra.Command{
 				fmt.Println("To initialize manually, run:")
 				fmt.Println("  devdock init --type=laravel")
 				fmt.Println("  devdock init --type=nextjs")
+				fmt.Println("  devdock init --type=express")
+				fmt.Println("  devdock init --type=fiber")
 				os.Exit(1)
 			}
 			projType = res.Type
@@ -63,7 +66,7 @@ var initCmd = &cobra.Command{
 				if !confirm {
 					err = survey.AskOne(&survey.Select{
 						Message: "Please select the project type:",
-						Options: []string{"laravel", "nextjs", "docker-compose"},
+						Options: []string{"laravel", "nextjs", "express", "fiber", "docker-compose"},
 					}, &projType)
 					if err != nil {
 						os.Exit(1)
@@ -173,6 +176,47 @@ var initCmd = &cobra.Command{
 		if recipe != nil {
 			cfg.App.Command = recipe.App.Command
 			cfg.App.Port = recipe.App.Port
+			cfg.Commands = recipe.Commands
+		}
+
+		if projType == "express" {
+			cfg.App.Port = 3000
+			b, err := os.ReadFile(filepath.Join(projectDir, "package.json"))
+			if err == nil {
+				var pkg map[string]interface{}
+				if err := json.Unmarshal(b, &pkg); err == nil {
+					scripts, _ := pkg["scripts"].(map[string]interface{})
+					if scripts != nil {
+						if _, ok := scripts["dev"]; ok {
+							cfg.App.Command = "npm run dev"
+						} else if _, ok := scripts["start"]; ok {
+							cfg.App.Command = "npm start"
+						}
+					}
+				}
+			}
+			if cfg.App.Command == "" || cfg.App.Command == recipe.App.Command {
+				if cfg.App.Command == "" {
+					cfg.App.Command = "node index.js"
+				}
+				if cfg.App.Command == "node index.js" {
+					fmt.Println("\n⚠ Warning: Could not detect start script.")
+					fmt.Println("  Why: Your package.json is missing 'dev' or 'start' scripts.")
+					fmt.Println("  Fix: DevDock defaulted to 'node index.js'. Update 'app.command' in .devdock.yml if needed.")
+				}
+			}
+		}
+
+		if projType == "fiber" {
+			cfg.App.Port = 3000
+			if cfg.App.Command == "" || (recipe != nil && cfg.App.Command == recipe.App.Command) {
+				cfg.App.Command = "go run main.go"
+				if _, err := os.Stat(filepath.Join(projectDir, "main.go")); os.IsNotExist(err) {
+					fmt.Println("\n⚠ Warning: main.go not found in project root.")
+					fmt.Println("  Why: DevDock looks for a main.go file to run by default.")
+					fmt.Println("  Fix: DevDock defaulted to 'go run main.go'. Update 'app.command' in .devdock.yml if your entry point is elsewhere (e.g. cmd/server/main.go).")
+				}
+			}
 		}
 
 		writeConfig(configPath, cfg)
@@ -222,7 +266,7 @@ func writeConfig(path string, cfg *config.Config) {
 }
 
 func init() {
-	initCmd.Flags().StringVar(&initType, "type", "", "Project type (laravel, nextjs, docker-compose)")
+	initCmd.Flags().StringVar(&initType, "type", "", "Project type (laravel, nextjs, express, fiber, docker-compose)")
 	initCmd.Flags().StringVar(&initDB, "db", "", "Database service (postgres, mysql)")
 	initCmd.Flags().BoolVar(&initRedis, "redis", false, "Enable Redis")
 	initCmd.Flags().BoolVar(&initForce, "force", false, "Overwrite existing configurations")

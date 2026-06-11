@@ -14,7 +14,7 @@ func runCompose(projectDir string, args ...string) error {
 }
 
 func Up(projectDir string, build bool) error {
-	args := []string{"up", "-d"}
+	args := []string{"up", "-d", "--wait"}
 	if build {
 		args = append(args, "--build")
 	}

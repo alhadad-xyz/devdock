@@ -51,8 +51,13 @@ var upCmd = &cobra.Command{
 					fmt.Println(err)
 					os.Exit(1)
 				}
-			} else if cfg.Project.Type == "nextjs" {
+			} else if cfg.Project.Type == "nextjs" || cfg.Project.Type == "express" {
 				if err := docker.CheckNode(); err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+			} else if cfg.Project.Type == "fiber" {
+				if err := docker.CheckGo(); err != nil {
 					fmt.Println(err)
 					os.Exit(1)
 				}
@@ -81,6 +86,28 @@ var upCmd = &cobra.Command{
 
 			if cfg.Services.Redis != nil && cfg.Services.Redis.Enabled {
 				if err := ports.CheckPort(cfg.Services.Redis.Port, "redis", fmt.Sprintf("Change services.redis.port in .devdock.yml to a different port, then run 'devdock up' again.")); err != nil {
+					fmt.Println(err)
+					os.Exit(4)
+				}
+			}
+
+			if cfg.Services.Mailpit != nil && cfg.Services.Mailpit.Enabled {
+				if err := ports.CheckPort(cfg.Services.Mailpit.SMTPPort, "mailpit (smtp)", fmt.Sprintf("Change services.mailpit.smtp_port in .devdock.yml.")); err != nil {
+					fmt.Println(err)
+					os.Exit(4)
+				}
+				if err := ports.CheckPort(cfg.Services.Mailpit.UIPort, "mailpit (ui)", fmt.Sprintf("Change services.mailpit.ui_port in .devdock.yml.")); err != nil {
+					fmt.Println(err)
+					os.Exit(4)
+				}
+			}
+
+			if cfg.Services.MinIO != nil && cfg.Services.MinIO.Enabled {
+				if err := ports.CheckPort(cfg.Services.MinIO.APIPort, "minio (api)", fmt.Sprintf("Change services.minio.api_port in .devdock.yml.")); err != nil {
+					fmt.Println(err)
+					os.Exit(4)
+				}
+				if err := ports.CheckPort(cfg.Services.MinIO.ConsolePort, "minio (console)", fmt.Sprintf("Change services.minio.console_port in .devdock.yml.")); err != nil {
 					fmt.Println(err)
 					os.Exit(4)
 				}

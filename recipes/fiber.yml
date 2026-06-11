@@ -1,5 +1,5 @@
 app:
-  command: "npm run dev"
+  command: "go run main.go"
   port: 3000
 services:
   postgres:
@@ -11,8 +11,6 @@ services:
   minio:
     enabled: false
 commands:
-  install: pnpm install
-  dev: pnpm dev
-  build: pnpm build
-  lint: pnpm lint
-  test: pnpm test
+  install: go mod download
+  dev: go run main.go
+  build: go build -o app main.go

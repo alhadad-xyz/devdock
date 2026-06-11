@@ -28,7 +28,7 @@ func Generate(projectDir string, cfg *config.Config) error {
 			buf.WriteString(fmt.Sprintf("REDIS_PASSWORD=null\n"))
 			buf.WriteString(fmt.Sprintf("REDIS_PORT=6379\n"))
 		}
-	} else if cfg.Project.Type == "nextjs" {
+	} else if cfg.Project.Type == "nextjs" || cfg.Project.Type == "express" || cfg.Project.Type == "fiber" {
 		if cfg.Services.Postgres != nil && cfg.Services.Postgres.Enabled {
 			buf.WriteString(fmt.Sprintf("DATABASE_URL=postgresql://devdock:password@postgres:5432/%s\n", dbName))
 		}

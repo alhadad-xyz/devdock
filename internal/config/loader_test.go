@@ -122,3 +122,35 @@ app:
 		t.Fatal("expected error for missing port on laravel")
 	}
 }
+
+func TestBackwardCompatibility(t *testing.T) {
+	fixtures := []string{
+		"v0.1-laravel.yml",
+		"v0.1-nextjs.yml",
+		"v0.1-docker-compose.yml",
+	}
+
+	for _, fixture := range fixtures {
+		t.Run(fixture, func(t *testing.T) {
+			b, err := os.ReadFile(filepath.Join("testdata", "backward-compat", fixture))
+			if err != nil {
+				t.Fatalf("failed to read fixture: %v", err)
+			}
+			
+			tempDir := t.TempDir()
+			err = os.WriteFile(filepath.Join(tempDir, ".devdock.yml"), b, 0644)
+			if err != nil {
+				t.Fatalf("failed to write fixture: %v", err)
+			}
+			
+			cfg, err := config.Load(tempDir)
+			if err != nil {
+				t.Fatalf("expected valid config for %s, got error: %v", fixture, err)
+			}
+			
+			if cfg.Version != "1" {
+				t.Errorf("expected version 1, got %s", cfg.Version)
+			}
+		})
+	}
+}
