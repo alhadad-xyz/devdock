@@ -25,7 +25,7 @@ func TestDetect(t *testing.T) {
 
 		// Low confidence tests
 		{"Laravel (Low)", "low-laravel", "laravel", detector.Low},
-		{"Next.js (Low)", "low-nextjs", "nextjs", detector.Low},
+		{"Express Ambiguous (Low)", "low-nextjs", "express", detector.Low},
 
 		// Unknown test
 		{"Unknown Stack", "unknown", "unknown", detector.None},

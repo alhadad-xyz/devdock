@@ -9,9 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Version represents the current version of DevDock.
-// Injected during build using -ldflags "-X devdock/internal/cli.Version=x.y.z"
-var Version = "0.1.0-dev"
+// Version metadata
+var (
+	Version   = "dev"
+	Commit    = "unknown"
+	BuildDate = "unknown"
+)
 
 var (
 	quietFlag   bool
@@ -27,7 +30,11 @@ var rootCmd = &cobra.Command{
 	SilenceUsage:  true, // Prevent showing usage on every error
 	Version:       Version,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Welcome to DevDock v%s\n\n", Version)
+		if Version == "dev" {
+			fmt.Printf("Welcome to DevDock v%s\n\n", Version)
+		} else {
+			fmt.Printf("Welcome to DevDock v%s (commit: %s, built: %s)\n\n", Version, Commit, BuildDate)
+		}
 		fmt.Println("Run `devdock --help` to see available commands.")
 	},
 }
@@ -48,6 +55,12 @@ func ResolveProjectRoot() (string, error) {
 
 // Execute executes the root command.
 func Execute() error {
+	if Version == "dev" {
+		rootCmd.SetVersionTemplate("devdock version dev\n")
+	} else {
+		rootCmd.SetVersionTemplate(fmt.Sprintf("devdock version %s (commit: %s, built: %s)\n", Version, Commit, BuildDate))
+	}
+
 	err := rootCmd.Execute()
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "unknown command") {
